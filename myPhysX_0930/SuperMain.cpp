@@ -1,5 +1,6 @@
 #include <iostream>
 #include "PxPhysicsAPI.h"
+#include "MyRenderler.h"
 
 using namespace std;
 using namespace physx;
@@ -59,22 +60,24 @@ void stepPhysics()
 
 int main(void)
 {
-    initPhysics();
-    cout << "Free Fall" << endl;
-    cout << "Start physics process" << endl;
-
-    PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);    //static friction, dynamic friction, restitution
-    createDynamic(PxTransform((PxVec3(0.0f, 10.0f, 0.0f))), PxSphereGeometry(1.0f), *material); //drop 1m sphere from 10m high
-
-    for (PxU32 i = 0; i != 500; i++)
-    {
-        if (i % 100 == 0)
-            cout << "Simulation step: " << i << endl;
-        stepPhysics();
-    }
-
-    cout << "End physics process." << endl;
-    int tmp;
-    cin >> tmp;
+    MyRenderler rend;
+    rend.CreateSampleWindow("hoge");
+//    initPhysics();
+//    cout << "Free Fall" << endl;
+//    cout << "Start physics process" << endl;
+//
+//    PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);    //static friction, dynamic friction, restitution
+//    createDynamic(PxTransform((PxVec3(0.0f, 10.0f, 0.0f))), PxSphereGeometry(1.0f), *material); //drop 1m sphere from 10m high
+//
+//    for (PxU32 i = 0; i != 500; i++)
+//    {
+//        if (i % 100 == 0)
+//            cout << "Simulation step: " << i << endl;
+//        stepPhysics();
+//    }
+//
+//    cout << "End physics process." << endl;
+//    int tmp;
+//    cin >> tmp;
     return 0;
 }
