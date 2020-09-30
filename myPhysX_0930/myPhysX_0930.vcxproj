@@ -159,11 +159,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MyRenderler.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="phycsMain.cpp" />
     <ClCompile Include="SuperMain.cpp" />
+    <ClCompile Include="TestRender.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MyRenderler.h" />
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
