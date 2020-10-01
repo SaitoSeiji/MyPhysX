@@ -161,11 +161,15 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="phycsMain.cpp" />
+    <ClCompile Include="RenderActor.cpp" />
+    <ClCompile Include="RenderRogic.cpp" />
     <ClCompile Include="SuperMain.cpp" />
     <ClCompile Include="TestRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="RenderActor.h" />
+    <ClInclude Include="RenderRogic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
