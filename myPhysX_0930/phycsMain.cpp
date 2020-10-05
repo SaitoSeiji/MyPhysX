@@ -1,6 +1,6 @@
 #include <iostream>
 #include "PxPhysicsAPI.h"
-
+ 
 using namespace std;
 using namespace physx;
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
@@ -78,7 +78,6 @@ namespace {
 //物の初期配置を行う
 void InitPhysicsEnviourment() {
 
-    gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);    //static friction, dynamic friction, restitution
 
     PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
     gScene->addActor(*groundPlane);
@@ -92,27 +91,25 @@ void InitPhysicsEnviourment() {
 
     ////チェーンの作製
     CreateChain(hook, -12, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);/*
+    CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);
     CreateChain(hook, -8, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -6, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -4, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -2, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 0, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 2, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 4, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 6, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 8, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 10, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 12, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, 10, kHeight, kHookHalfHeight, 50, 10, 1);*/
+    //CreateChain(hook, -6, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, -4, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, -2, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 0, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 2, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 4, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 6, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 8, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 10, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 12, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, 10, kHeight, kHookHalfHeight, 50, 10, 1);
 
 }
 // Proceed the step of physics environment
-float dtsum;
-float unitTime = 1.0f / 30.0f;
 void stepPhysics(float dt)
 {
-#if 1
+#if 0
     dtsum += dt;
     if (dtsum < unitTime)return;
     float stepCount = 0;
@@ -125,14 +122,14 @@ void stepPhysics(float dt)
     gScene->simulate(stepCount*unitTime);
     gScene->fetchResults(true);
 #else
-    
-    gScene->simulate(1.0f/60.0f);
+    gScene->simulate(dt);
     gScene->fetchResults(true);
+
 #endif
 }
 
 // Initialize PhysX extern
-void initPhysics()
+void initPhysics(bool init)
 {
     gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
@@ -160,7 +157,8 @@ void initPhysics()
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
-    InitPhysicsEnviourment();
+    gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);    //static friction, dynamic friction, restitution
+    if(init)InitPhysicsEnviourment();
 }
 void cleanupPhysics()
 {
@@ -181,7 +179,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
 {
     switch (toupper(key))
     {
-    case ' ':	createDynamic(camera, PxSphereGeometry(5.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
+    case ' ':	createDynamic(camera, PxSphereGeometry(2.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
     case 'Q':ChengeBallSpeed(5.0f); break;
     case 'E':ChengeBallSpeed(-5.0f); break;
     }

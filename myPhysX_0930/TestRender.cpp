@@ -4,49 +4,19 @@
 #include "PxPhysicsAPI.h"
 #include "Camera.h"
 #include "RenderActor.h"
-#include <time.h>
+#include "FrameActor.h"
+//#include "DtCulcurator.h"
 
 using namespace std;
 using namespace physx;
 
-extern void initPhysics();
+extern void initPhysics(bool init);
 extern void stepPhysics(float dt);
 extern void cleanupPhysics();
 extern void keyPress(unsigned char key, const PxTransform& camera);
 namespace {
-	unsigned int frameRange = 500;
 	Camera* sCamera;
 
-	long long beforest=-1;
-	long long beforent=-1;
-	float CalcDt() {
-		timespec _time;
-		if (timespec_get(&_time, TIME_UTC) == 0) {
-			cerr << "時刻の取得に失敗した";
-		}
-		long long nowst = _time.tv_sec;
-		long long nownt = _time.tv_nsec;
-		if (beforent < 0) {
-			beforest = nowst;
-			beforent = nownt;
-			return 0;
-		}
-
-		long long dnt = nownt - beforent;
-		beforent = nownt;
-		long dst = 0;
-		if (nowst > beforest) {
-		 dst = nowst - beforest;
-			//cout << dst << "秒経過\n";
-			dnt += dst * 1000000000.0f;
-			beforest = nowst;
-		}
-		/*if (dnt < 0) {
-			cout << "framemiss "<< dst<<" "<<dnt<<"\n";
-			return 0;
-		}*/
-		return dnt/100000000.0f;
-	}
 
 	void motionCallback(int x, int y)
 	{
@@ -64,16 +34,41 @@ namespace {
 	{
 		sCamera->handleMouse(button, state, x, y);
 	}
+	float dt=0;
+	FrameActor _physcsFrameActor = FrameActor(1.0f / 60.0f);
+	FrameActor _renderFrameActor= FrameActor(1.0f/4.0f);
+	bool isFirst = true;
 	void idleCallback()
 	{
-		stepPhysics(CalcDt());
-		glutPostRedisplay();
+		//初期化処理
+		if (isFirst) {
+			isFirst = false;
+			_physcsFrameActor.Reset();
+			_renderFrameActor.Reset();
+			return;
+		}
+		//経過時間の更新
+		_physcsFrameActor.CalcDt();
+		_renderFrameActor.CalcDt();
+
+		//フレーム処理
+		if (_physcsFrameActor.IsOverFrame()) {
+			dt = _physcsFrameActor.GetDt();
+			_physcsFrameActor.Reset();
+			stepPhysics(dt);
+			cout << "physcs_step " << dt << " sec" << "\n";
+		}
+		if (_renderFrameActor.IsOverFrame()) {
+			//cout << "render_step " << _renderFrameActor.GetDt() << " sec" << "\n";
+			_renderFrameActor.Reset();
+			glutPostRedisplay();
+		}
 	}
 
 	void timerCallback(int militime) {
 		cout << "timer collback\n";
 		//stepPhysics(CalcDt());
-		glutTimerFunc(1000/60, timerCallback, 1);
+		glutTimerFunc(500, timerCallback, 1);
 	}
 	void renderCallback() {
 		RenderActor::startRender(sCamera->getEye(), sCamera->getDir());
@@ -103,17 +98,16 @@ void renderLoop() {
 	RenderActor::setupDefaultRenderState();
 
 
-	glutTimerFunc(1000 / 60, timerCallback, 1);
 	glutIdleFunc(idleCallback);
 	glutDisplayFunc(renderCallback);
 	glutKeyboardFunc(keyboardCallback);
 	glutMouseFunc(mouseCallback);
 	glutMotionFunc(motionCallback);
-
+	//glutTimerFunc(500, timerCallback, 1);
 	motionCallback(0, 0);
 	atexit(exitCallback);
 
-	initPhysics();
+	initPhysics(true);
 	glutMainLoop();
 
 }
