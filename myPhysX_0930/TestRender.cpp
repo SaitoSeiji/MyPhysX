@@ -1,11 +1,11 @@
 #include<iostream>
 #include <glut.h>
 #include <vector>
+#include<chrono>
 #include "PxPhysicsAPI.h"
 #include "Camera.h"
 #include "RenderActor.h"
-#include "FrameActor.h"
-//#include "DtCulcurator.h"
+#include "FrameAction.h"
 
 using namespace std;
 using namespace physx;
@@ -35,33 +35,39 @@ namespace {
 		sCamera->handleMouse(button, state, x, y);
 	}
 	float dt=0;
-	FrameActor _physcsFrameActor = FrameActor(1.0f / 60.0f);
-	FrameActor _renderFrameActor= FrameActor(1.0f/4.0f);
-	bool isFirst = true;
+	float _physicsTimeScale = 8.0f;
+	FrameAction  _physcsFrameActor = FrameAction(1.0f / (60.0f*_physicsTimeScale));
+	FrameAction _renderFrameActor= FrameAction(1.0f/30.0f);
 	void idleCallback()
 	{
-		//初期化処理
-		if (isFirst) {
-			isFirst = false;
-			_physcsFrameActor.Reset();
-			_renderFrameActor.Reset();
-			return;
-		}
 		//経過時間の更新
-		_physcsFrameActor.CalcDt();
-		_renderFrameActor.CalcDt();
+		_physcsFrameActor.Update();
+		_renderFrameActor.Update();
 
+		//float idledt = _physcsFrameActor.GetProgressTime();
+		//cout << "idledt " << idledt << " sec" << "\n";
 		//フレーム処理
-		if (_physcsFrameActor.IsOverFrame()) {
-			dt = _physcsFrameActor.GetDt();
-			_physcsFrameActor.Reset();
+		if (_physcsFrameActor.IsOverFrameRate()) {
+			//auto start = chrono::system_clock::now();
+			dt = _physcsFrameActor.GetProgressTime() * _physicsTimeScale;
+			_physcsFrameActor.Refresh();
 			stepPhysics(dt);
-			cout << "physcs_step " << dt << " sec" << "\n";
+			//auto end = chrono::system_clock::now();
+			//auto dur = end - start;
+			//auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+			//cout<<  "physics simultare: " << nsec /1000000000.0f << "sec\n";
+			//cout << "physcs_step " << dt << " sec" << "\n";
+			//cout << "coal interval    : " << dt / _physicsTimeScale << "sec" << "\n";
 		}
-		if (_renderFrameActor.IsOverFrame()) {
-			//cout << "render_step " << _renderFrameActor.GetDt() << " sec" << "\n";
-			_renderFrameActor.Reset();
+		if (_renderFrameActor.IsOverFrameRate()) {
+			//cout << "render_step " << _renderFrameActor.GetProgressTime() << " sec" << "\n";
+			//auto start = chrono::system_clock::now();
+			_renderFrameActor.Refresh();
 			glutPostRedisplay();
+			//auto end = chrono::system_clock::now();
+			//auto dur = end - start;
+			//auto msec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+			//cout<<"render simultare: " << msec << "nano sec\n";
 		}
 	}
 
