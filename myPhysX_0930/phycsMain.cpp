@@ -14,6 +14,7 @@ PxScene* gScene = NULL;
 PxPvd* gPvd = NULL;
 PxMaterial* gMaterial;
 
+PxRigidActor* hook;
 
 // Create Dynamic Rigidbody
 
@@ -86,13 +87,13 @@ void InitPhysicsEnviourment() {
     const float kHeight = 70.0f;
     const float kHookHalfHeight = 1.0f;
     //天井をstaticで作成する
-    PxRigidActor* hook = createStatic(PxTransform(PxVec3(0, kHeight, 0)), PxBoxGeometry(20.0f, kHookHalfHeight, 1.0f));
+    hook = createStatic(PxTransform(PxVec3(0, kHeight, 0)), PxBoxGeometry(20.0f, kHookHalfHeight, 1.0f));
 
 
     ////チェーンの作製
     CreateChain(hook, -12, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);
-    CreateChain(hook, -8, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);
+    //CreateChain(hook, -8, kHeight, kHookHalfHeight, 20, 10, 1);
     //CreateChain(hook, -6, kHeight, kHookHalfHeight, 20, 10, 1);
     //CreateChain(hook, -4, kHeight, kHookHalfHeight, 20, 10, 1);
     //CreateChain(hook, -2, kHeight, kHookHalfHeight, 20, 10, 1);
@@ -103,7 +104,6 @@ void InitPhysicsEnviourment() {
     //CreateChain(hook, 8, kHeight, kHookHalfHeight, 20, 10, 1);
     //CreateChain(hook, 10, kHeight, kHookHalfHeight, 20, 10, 1);
     //CreateChain(hook, 12, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 10, kHeight, kHookHalfHeight, 50, 10, 1);
 
 }
 // Proceed the step of physics environment
@@ -175,13 +175,16 @@ void cleanupPhysics()
 
     printf("SnippetHelloWorld done.\n");
 }
+int cheinPos = 0;
 void keyPress(unsigned char key, const PxTransform& camera)
 {
     switch (toupper(key))
     {
     case ' ':	createDynamic(camera, PxSphereGeometry(2.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
     case 'Q':ChengeBallSpeed(5.0f); break;
-    case 'E':ChengeBallSpeed(-5.0f); break;
+    case 'E':ChengeBallSpeed(-5.0f); break; case 'B': CreateChain(hook, cheinPos, 70, 1.0f, 20, 10, 1);
+        cheinPos += 2;
+        break;
     }
 }
 

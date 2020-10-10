@@ -7,8 +7,9 @@ class DtCulcurator
 	long long beforent = -1;
 	bool isInited = false;
 public:
-	void Init();
-	bool IsInited();
-	float CalcDt();
+	void Start();
+	bool IsStarted();
+	float CalcDt_sec();
+	void Reset();
 };
 

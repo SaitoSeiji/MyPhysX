@@ -161,7 +161,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DtCulcurator.cpp" />
-    <ClCompile Include="FrameActor.cpp" />
+    <ClCompile Include="FrameAction.cpp" />
     <ClCompile Include="phycsMain.cpp" />
     <ClCompile Include="RenderActor.cpp" />
     <ClCompile Include="RenderRogic.cpp" />
@@ -171,7 +171,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DtCulcurator.h" />
-    <ClInclude Include="FrameActor.h" />
+    <ClInclude Include="FrameAction.h" />
     <ClInclude Include="RenderActor.h" />
     <ClInclude Include="RenderRogic.h" />
   </ItemGroup>
