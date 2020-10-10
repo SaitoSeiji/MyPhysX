@@ -9,14 +9,14 @@
 
 using namespace std;
 using namespace physx;
-
 extern void initPhysics(bool init);
 extern void stepPhysics(float dt);
 extern void cleanupPhysics();
 extern void keyPress(unsigned char key, const PxTransform& camera);
 namespace {
 	Camera* sCamera;
-
+	bool _isRendering = true;
+	void refreshRender();
 
 	void motionCallback(int x, int y)
 	{
@@ -26,6 +26,12 @@ namespace {
 	{
 		if (key == 27)
 			exit(0);
+
+		if (key == 'n') {
+			_isRendering = !_isRendering;
+			cout << "rendering:" << _isRendering<<"\n";
+			if(!_isRendering)refreshRender();
+		}
 
 		if (!sCamera->handleKey(key, x, y)) {}
 			keyPress(key, sCamera->getTransform());
@@ -61,13 +67,13 @@ namespace {
 		}
 		if (_renderFrameActor.IsOverFrameRate()) {
 			//cout << "render_step " << _renderFrameActor.GetProgressTime() << " sec" << "\n";
-			//auto start = chrono::system_clock::now();
+			auto start = chrono::system_clock::now();
 			_renderFrameActor.Refresh();
 			glutPostRedisplay();
-			//auto end = chrono::system_clock::now();
-			//auto dur = end - start;
-			//auto msec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-			//cout<<"render simultare: " << msec << "nano sec\n";
+			auto end = chrono::system_clock::now();
+			auto dur = end - start;
+			auto msec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+			cout<<"render simultare: " << msec << "nano sec\n";
 		}
 	}
 
@@ -77,8 +83,8 @@ namespace {
 		glutTimerFunc(500, timerCallback, 1);
 	}
 	void renderCallback() {
+		if (!_isRendering)return;
 		RenderActor::startRender(sCamera->getEye(), sCamera->getDir());
-
 		PxScene* scene;
 		PxGetPhysics().getScenes(&scene, 1);
 		PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
@@ -89,6 +95,11 @@ namespace {
 			RenderActor::renderActors(&actors[0], static_cast<PxU32>(actors.size()), true);
 		}
 		RenderActor::finishRender();//ダブルバッファリングをしてる
+	}
+	//画面からオブジェクトを消す
+	void refreshRender() {
+		RenderActor::startRender(sCamera->getEye(), sCamera->getDir());
+		RenderActor::finishRender();
 	}
 	void exitCallback(void)
 	{
