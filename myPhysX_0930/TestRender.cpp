@@ -67,13 +67,13 @@ namespace {
 		}
 		if (_renderFrameActor.IsOverFrameRate()) {
 			//cout << "render_step " << _renderFrameActor.GetProgressTime() << " sec" << "\n";
-			auto start = chrono::system_clock::now();
+			//auto start = chrono::system_clock::now();
 			_renderFrameActor.Refresh();
 			glutPostRedisplay();
-			auto end = chrono::system_clock::now();
-			auto dur = end - start;
-			auto msec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-			cout<<"render simultare: " << msec << "nano sec\n";
+			//auto end = chrono::system_clock::now();
+			//auto dur = end - start;
+			//auto msec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+			//cout<<"render simultare: " << msec << "nano sec\n";
 		}
 	}
 
