@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 #include <glut.h>
 #include <vector>
 #include<chrono>
@@ -6,6 +7,7 @@
 #include "Camera.h"
 #include "RenderActor.h"
 #include "FrameAction.h"
+#include "CSVOutPuter.h"
 
 using namespace std;
 using namespace physx;
@@ -22,10 +24,15 @@ namespace {
 	{
 		sCamera->handleMotion(x, y);
 	}
+
+	CSVOutPuter _outPuter(100);
 	void keyboardCallback(unsigned char key, int x, int y)
 	{
-		if (key == 27)
+		if (key == 27) {
+			_outPuter.OutPutCSV();
+			cout << "output file\n";
 			exit(0);
+		}
 
 		if (key == 'n') {
 			_isRendering = !_isRendering;
@@ -41,8 +48,8 @@ namespace {
 		sCamera->handleMouse(button, state, x, y);
 	}
 	float dt=0;
-	float _physicsTimeScale = 8.0f;
-	FrameAction  _physcsFrameActor = FrameAction(1.0f / (60.0f*_physicsTimeScale));
+	float _physicsTimeScale = 3.0f;
+	FrameAction  _physcsFrameActor = FrameAction(1.0f / (600.0f*_physicsTimeScale));
 	FrameAction _renderFrameActor= FrameAction(1.0f/30.0f);
 	void idleCallback()
 	{
@@ -53,15 +60,19 @@ namespace {
 		//float idledt = _physcsFrameActor.GetProgressTime();
 		//cout << "idledt " << idledt << " sec" << "\n";
 		//ƒtƒŒ[ƒ€ˆ—
+		
 		if (_physcsFrameActor.IsOverFrameRate()) {
-			//auto start = chrono::system_clock::now();
+			auto start = chrono::system_clock::now();
 			dt = _physcsFrameActor.GetProgressTime() * _physicsTimeScale;
 			_physcsFrameActor.Refresh();
 			stepPhysics(dt);
-			//auto end = chrono::system_clock::now();
-			//auto dur = end - start;
-			//auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-			//cout<<  "physics simultare: " << nsec /1000000000.0f << "sec\n";
+			auto end = chrono::system_clock::now();
+			auto dur = end - start;
+			auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+			float sec = nsec / 1000000000.0f;
+			cout<<  "physics simultare: " << sec << "sec\n";
+			
+			_outPuter.TryAddData(sec);
 			//cout << "physcs_step " << dt << " sec" << "\n";
 			//cout << "coal interval    : " << dt / _physicsTimeScale << "sec" << "\n";
 		}

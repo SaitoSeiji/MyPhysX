@@ -4,6 +4,7 @@
 using namespace std;
 using namespace physx;
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
+#define PVD_USEDEBUG false
 
 PxDefaultAllocator      gAllocator;
 PxDefaultErrorCallback  gErrorCallback;
@@ -153,9 +154,9 @@ void initPhysics(bool init)
     PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
     if (pvdClient)
     {
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, PVD_USEDEBUG);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, PVD_USEDEBUG);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, PVD_USEDEBUG);
     }
     gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);    //static friction, dynamic friction, restitution
     if(init)InitPhysicsEnviourment();

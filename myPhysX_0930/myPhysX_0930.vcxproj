@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CSVOutPuter.cpp" />
     <ClCompile Include="DtCulcurator.cpp" />
     <ClCompile Include="FrameAction.cpp" />
     <ClCompile Include="phycsMain.cpp" />
@@ -170,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CSVOutPuter.h" />
     <ClInclude Include="DtCulcurator.h" />
     <ClInclude Include="FrameAction.h" />
     <ClInclude Include="RenderActor.h" />
