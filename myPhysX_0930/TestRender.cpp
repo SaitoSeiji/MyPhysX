@@ -25,7 +25,7 @@ namespace {
 		sCamera->handleMotion(x, y);
 	}
 
-	CSVOutPuter _outPuter(100);
+	CSVOutPuter _outPuter(10);
 	void keyboardCallback(unsigned char key, int x, int y)
 	{
 		if (key == 27) {
