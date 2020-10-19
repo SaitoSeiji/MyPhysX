@@ -39,7 +39,7 @@ PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry)
 #pragma region  local
 namespace {
 #pragma region shotBall
-    float _ballSpeed = 20;
+    float _ballSpeed = 10;
     void ChengeBallSpeed(float dv) {
         _ballSpeed += dv;
         if (_ballSpeed < 0)_ballSpeed = 0;
@@ -242,7 +242,8 @@ void initPhysics(bool init)
     sceneDesc.cpuDispatcher = gDispatcher;
     sceneDesc.filterShader = PxDefaultSimulationFilterShader;
     gScene = gPhysics->createScene(sceneDesc);
-
+    float gravityRate = 1.0f;
+    gScene->setGravity(PxVec3(0, -9.81*gravityRate, 0));
     // PVD setting
     PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
     if (pvdClient)
@@ -296,8 +297,8 @@ void PMain() {
 #endif
 }
 
-#define INIT_CHEINE true
-#define INIT_BALLPOOL false
+#define INIT_CHEINE 0
+#define INIT_BALLPOOL 1
 void keyPress(unsigned char key, const PxTransform& camera)
 {
     if (INIT_CHEINE)keyPress_chein(key, camera);
