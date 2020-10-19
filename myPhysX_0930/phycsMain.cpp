@@ -38,11 +38,16 @@ PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry)
 
 #pragma region  local
 namespace {
-    float _ballSpeed=20;
+#pragma region shotBall
+    float _ballSpeed = 10;
     void ChengeBallSpeed(float dv) {
         _ballSpeed += dv;
         if (_ballSpeed < 0)_ballSpeed = 0;
     }
+#pragma endregion
+
+#pragma region cheine
+    
     PxRigidActor* CreateChain(PxRigidActor* firstFrom, float x, float kHeight, float kHookHalfHeight, float createCount
         , int iterationCount_pos, int iterationCount_vel) {
         PxRigidActor* from, * next;//from と nextをjointしていく
@@ -73,40 +78,127 @@ namespace {
         }
         return from;
     }
+
+    int cheinPos = 0;
+    void keyPress_chein(unsigned char key, const PxTransform& camera) {
+        switch (toupper(key))
+        {
+        case ' ':	createDynamic(camera, PxSphereGeometry(2.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
+        case 'Q':ChengeBallSpeed(5.0f); break;
+        case 'E':ChengeBallSpeed(-5.0f); break;
+        case 'B': CreateChain(hook, cheinPos, 70, 1.0f, 20, 10, 1);
+            cheinPos += 2;
+            break;
+        }
+    }
+    void InitPhysicsEnviourment_chein() {
+        PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+        gScene->addActor(*groundPlane);
+
+        createDynamic(PxTransform((PxVec3(0.0f, 10.0f, 0.0f))), PxSphereGeometry(1.0f)); //drop 1m sphere from 10m high
+        const float kHeight = 70.0f;
+        const float kHookHalfHeight = 1.0f;
+        //天井をstaticで作成する
+        hook = createStatic(PxTransform(PxVec3(0, kHeight, 0)), PxBoxGeometry(20.0f, kHookHalfHeight, 1.0f));
+
+
+        ////チェーンの作製
+        CreateChain(hook, -12, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, -8, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, -6, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, -4, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, -2, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 0, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 2, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 4, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 6, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 8, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 10, kHeight, kHookHalfHeight, 20, 10, 1);
+        CreateChain(hook, 12, kHeight, kHookHalfHeight, 20, 10, 1);
+        cheinPos = 14;
+    }
+#pragma endregion
+#pragma region ballpool
+
+    void CreateStack_ballpool(int lx,float height, int lz, float ballsize) {
+        for (int x = 0; x < lx; x++) {
+            for (int z = 0; z < lz; z++) {
+
+                createDynamic(PxTransform((PxVec3(x, height, z) * (ballsize + 1))), PxSphereGeometry(ballsize));
+            }
+
+        }
+    }
+    int length_x = 10;
+    int height = 10;
+    int length_z = 10;
+    float _ballsize = 1.0f;
+    PxRigidDynamic* wall1=NULL;
+    bool wallmoveFlag = false;
+    void keyPress_ballpool(unsigned char key, const PxTransform& camera) {
+        switch (toupper(key))
+        {
+        case ' ':	createDynamic(camera, PxSphereGeometry(2.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
+        case 'Q':ChengeBallSpeed(10.0f); break;
+        case 'E':ChengeBallSpeed(-5.0f); break;
+        case 'B':
+            CreateStack_ballpool(length_x, height, length_z, _ballsize);
+            break;
+        case 'V': {
+            wallmoveFlag = !wallmoveFlag;
+            break; }
+        }
+    }
+
+    void InitPhysicsEnviourment_ballpool() {
+        PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+
+        wall1 =createDynamic(PxTransform(PxVec3(8, 0, -5)), PxBoxGeometry(16.0f, 10.0f, 1.0f));
+        PxRigidDynamic& wall2 = *createDynamic(PxTransform(PxVec3(8, 0, 25)), PxBoxGeometry(16.0f, 10.0f, 1.0f));
+        PxRigidDynamic& wall3 = *createDynamic(PxTransform(PxVec3(25, 0, 7)), PxBoxGeometry(1.0f, 10.0f, 16.0f));
+        PxRigidDynamic& wall4 = *createDynamic(PxTransform(PxVec3(-9, 0, 7)), PxBoxGeometry(1.0f, 10.0f, 16.0f));
+        PxAggregate* aggregate = gPhysics->createAggregate(4, false);
+        aggregate->addActor(*wall1);
+        aggregate->addActor(wall2);
+        aggregate->addActor(wall3);
+        aggregate->addActor(wall4);
+        wall1->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+        wall2.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+        wall3.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+        wall4.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+        
+        gScene->addActor(*groundPlane);
+        for (int i = 0; i < 5;i++) {
+            CreateStack_ballpool(length_x, height + i * _ballsize, length_z, _ballsize);
+        }
+
+    }
+    bool isUp=true;
+    float maxpos = 10;
+    float minpos = -5;
+    float wallSpeed = 10;
+    void UpdateEnviroment_ballpool(float dt) {
+        if (!wallmoveFlag)return;
+        PxVec3 pos= wall1->getGlobalPose().p;
+        if (isUp && pos.z > maxpos)isUp = false;
+        else if (!isUp && pos.z < minpos)isUp = true;
+        float sign = 0;
+        sign = (isUp) ? -1.0f: 1.0f;
+        PxTransform next_position(wall1->getGlobalPose().p - PxVec3(0.0f, 0.0f, dt*wallSpeed*sign));
+        wall1->setKinematicTarget(next_position);
+    }
+#pragma endregion
+
+    
 }
 #pragma endregion
 
 
 //物の初期配置を行う
-void InitPhysicsEnviourment() {
+void InitPhysicsEnviourment();
+void UpdateEnviroment(float dt);
 
-
-    PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-    gScene->addActor(*groundPlane);
-
-    createDynamic(PxTransform((PxVec3(0.0f, 10.0f, 0.0f))), PxSphereGeometry(1.0f)); //drop 1m sphere from 10m high
-    const float kHeight = 70.0f;
-    const float kHookHalfHeight = 1.0f;
-    //天井をstaticで作成する
-    hook = createStatic(PxTransform(PxVec3(0, kHeight, 0)), PxBoxGeometry(20.0f, kHookHalfHeight, 1.0f));
-
-
-    ////チェーンの作製
-    CreateChain(hook, -12, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, -10, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, -8, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, -6, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, -4, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, -2, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 0, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 2, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 4, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 6, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 8, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 10, kHeight, kHookHalfHeight, 20, 10, 1);
-    //CreateChain(hook, 12, kHeight, kHookHalfHeight, 20, 10, 1);
-
-}
 // Proceed the step of physics environment
 void stepPhysics(float dt)
 {
@@ -123,6 +215,7 @@ void stepPhysics(float dt)
     gScene->simulate(stepCount*unitTime);
     gScene->fetchResults(true);
 #else
+    UpdateEnviroment(dt);
     gScene->simulate(dt);
     gScene->fetchResults(true);
 
@@ -149,7 +242,8 @@ void initPhysics(bool init)
     sceneDesc.cpuDispatcher = gDispatcher;
     sceneDesc.filterShader = PxDefaultSimulationFilterShader;
     gScene = gPhysics->createScene(sceneDesc);
-
+    float gravityRate = 1.0f;
+    gScene->setGravity(PxVec3(0, -9.81*gravityRate, 0));
     // PVD setting
     PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
     if (pvdClient)
@@ -176,18 +270,8 @@ void cleanupPhysics()
 
     printf("SnippetHelloWorld done.\n");
 }
-int cheinPos = 0;
-void keyPress(unsigned char key, const PxTransform& camera)
-{
-    switch (toupper(key))
-    {
-    case ' ':	createDynamic(camera, PxSphereGeometry(2.0f), camera.rotate(PxVec3(-0.3f, 0, -1)) * _ballSpeed);	break;
-    case 'Q':ChengeBallSpeed(5.0f); break;
-    case 'E':ChengeBallSpeed(-5.0f); break; case 'B': CreateChain(hook, cheinPos, 70, 1.0f, 20, 10, 1);
-        cheinPos += 2;
-        break;
-    }
-}
+void keyPress(unsigned char key, const PxTransform& camera);
+
 
 void PMain() {
 
@@ -211,4 +295,21 @@ void PMain() {
     extern void renderLoop();
     renderLoop();
 #endif
+}
+
+#define INIT_CHEINE 0
+#define INIT_BALLPOOL 1
+void keyPress(unsigned char key, const PxTransform& camera)
+{
+    if (INIT_CHEINE)keyPress_chein(key, camera);
+    else if (INIT_BALLPOOL)keyPress_ballpool(key, camera);
+}
+//物の初期配置を行う
+void InitPhysicsEnviourment() {
+    if (INIT_CHEINE)InitPhysicsEnviourment_chein();
+    else if (INIT_BALLPOOL)InitPhysicsEnviourment_ballpool();
+}
+
+void UpdateEnviroment(float dt) {
+    if (INIT_BALLPOOL)UpdateEnviroment_ballpool(dt);
 }
