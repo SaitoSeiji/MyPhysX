@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
-#include <time.h>
+#include<chrono>
+using namespace std;
+using namespace chrono;
 class DtCulcurator
 {
-	long long beforest = -1;
-	long long beforent = -1;
+	system_clock::time_point beforePoint=chrono::system_clock::now();
 	bool isInited = false;
 public:
 	void Start();

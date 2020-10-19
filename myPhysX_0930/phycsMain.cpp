@@ -34,12 +34,10 @@ PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry)
     return static_actor;
 }
 
-
-
 #pragma region  local
 namespace {
 #pragma region shotBall
-    float _ballSpeed = 10;
+    float _ballSpeed = 100;
     void ChengeBallSpeed(float dv) {
         _ballSpeed += dv;
         if (_ballSpeed < 0)_ballSpeed = 0;
@@ -120,14 +118,11 @@ namespace {
     }
 #pragma endregion
 #pragma region ballpool
-
     void CreateStack_ballpool(int lx,float height, int lz, float ballsize) {
         for (int x = 0; x < lx; x++) {
             for (int z = 0; z < lz; z++) {
-
                 createDynamic(PxTransform((PxVec3(x, height, z) * (ballsize + 1))), PxSphereGeometry(ballsize));
             }
-
         }
     }
     int length_x = 10;
@@ -153,11 +148,10 @@ namespace {
 
     void InitPhysicsEnviourment_ballpool() {
         PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-
-        wall1 =createDynamic(PxTransform(PxVec3(8, 0, -5)), PxBoxGeometry(16.0f, 10.0f, 1.0f));
-        PxRigidDynamic& wall2 = *createDynamic(PxTransform(PxVec3(8, 0, 25)), PxBoxGeometry(16.0f, 10.0f, 1.0f));
-        PxRigidDynamic& wall3 = *createDynamic(PxTransform(PxVec3(25, 0, 7)), PxBoxGeometry(1.0f, 10.0f, 16.0f));
-        PxRigidDynamic& wall4 = *createDynamic(PxTransform(PxVec3(-9, 0, 7)), PxBoxGeometry(1.0f, 10.0f, 16.0f));
+        wall1 =createDynamic(PxTransform(PxVec3(8, 0, -5)), PxBoxGeometry(16.0f, 40.0f, 1.0f));
+        PxRigidDynamic& wall2 = *createDynamic(PxTransform(PxVec3(8, 0, 25)), PxBoxGeometry(16.0f, 40.0f, 1.0f));
+        PxRigidDynamic& wall3 = *createDynamic(PxTransform(PxVec3(25, 0, 7)), PxBoxGeometry(1.0f, 40.0f, 16.0f));
+        PxRigidDynamic& wall4 = *createDynamic(PxTransform(PxVec3(-9, 0, 7)), PxBoxGeometry(1.0f, 40.0f, 16.0f));
         PxAggregate* aggregate = gPhysics->createAggregate(4, false);
         aggregate->addActor(*wall1);
         aggregate->addActor(wall2);
@@ -189,8 +183,6 @@ namespace {
         wall1->setKinematicTarget(next_position);
     }
 #pragma endregion
-
-    
 }
 #pragma endregion
 

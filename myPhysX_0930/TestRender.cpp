@@ -47,9 +47,8 @@ namespace {
 	{
 		sCamera->handleMouse(button, state, x, y);
 	}
-	float dt=0;
-	float _physicsTimeScale = 1.0f;
-	FrameAction  _physcsFrameActor = FrameAction(1.0f / (60.0f*_physicsTimeScale));
+	float _physicsTimeScale = 1.0f;//Ç§Ç‹Ç≠Ç¢Ç©Ç»Ç¢èÍçáÇÕ1Ç…Ç∑ÇÈ
+	FrameAction  _physcsFrameActor = FrameAction(1.0f / (50.0f));
 	FrameAction _renderFrameActor= FrameAction(1.0f/30.0f);
 	void idleCallback()
 	{
@@ -63,18 +62,20 @@ namespace {
 		
 		if (_physcsFrameActor.IsOverFrameRate()) {
 			auto start = chrono::system_clock::now();
-			dt = _physcsFrameActor.GetProgressTime() * _physicsTimeScale;
+			float dt = _physcsFrameActor.GetProgressTime();
+			float stepDt = dt * _physicsTimeScale;
 			_physcsFrameActor.Refresh();
-			stepPhysics(dt);
-			auto end = chrono::system_clock::now();
-			auto dur = end - start;
-			auto nsec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-			float sec = nsec / 1000000.0f;
+			stepPhysics(stepDt);
+			auto dur = chrono::system_clock::now()-start;
+			auto misec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+			float sec = misec / 1000000.0f;
+			cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale  << "\n";
+			//_outPuter.TryAddData(sec);
 			//cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale << ": isOver:" << (sec > dt / _physicsTimeScale) << "\n";
 			//cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale << ": intervalOver:" << (0.03f<dt/_physicsTimeScale) << "\n";
-			_outPuter.TryAddData(sec);
+			
 			//cout<<  "physics simultare: " << sec << "sec\n";
-			cout << "coal interval    : " << dt / _physicsTimeScale << "sec" << "\n";
+			//cout << "coal interval    : " << dt << "sec" << "\n";
 			//cout << "physcs_step " << dt << " sec" << "\n";
 		}
 		if (_renderFrameActor.IsOverFrameRate()) {
