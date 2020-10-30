@@ -17,6 +17,7 @@ PxMaterial* gMaterial;
 
 PxRigidActor* hook;
 
+int _objCount = 0;;
 // Create Dynamic Rigidbody
 
 PxRigidDynamic* createDynamic(const PxTransform & t, const PxGeometry & geometry, const PxVec3 & velocity = PxVec3(0))
@@ -25,10 +26,14 @@ PxRigidDynamic* createDynamic(const PxTransform & t, const PxGeometry & geometry
     dynamic->setAngularDamping(0.5f);
     dynamic->setLinearVelocity(velocity);
     gScene->addActor(*dynamic);
+    _objCount++;
     return dynamic;
 }
 PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry)
 {
+    
+
+    _objCount++;
     PxRigidStatic* static_actor = PxCreateStatic(*gPhysics, t, geometry, *gMaterial);
     gScene->addActor(*static_actor);
     return static_actor;
@@ -145,18 +150,18 @@ namespace {
             break; }
         }
     }
-
+    //PxAggregate* aggregate;
     void InitPhysicsEnviourment_ballpool() {
         PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
         wall1 =createDynamic(PxTransform(PxVec3(8, 0, -5)), PxBoxGeometry(16.0f, 40.0f, 1.0f));
         PxRigidDynamic& wall2 = *createDynamic(PxTransform(PxVec3(8, 0, 25)), PxBoxGeometry(16.0f, 40.0f, 1.0f));
         PxRigidDynamic& wall3 = *createDynamic(PxTransform(PxVec3(25, 0, 7)), PxBoxGeometry(1.0f, 40.0f, 16.0f));
         PxRigidDynamic& wall4 = *createDynamic(PxTransform(PxVec3(-9, 0, 7)), PxBoxGeometry(1.0f, 40.0f, 16.0f));
-        PxAggregate* aggregate = gPhysics->createAggregate(4, false);
+        /*aggregate = gPhysics->createAggregate(4, false);
         aggregate->addActor(*wall1);
         aggregate->addActor(wall2);
         aggregate->addActor(wall3);
-        aggregate->addActor(wall4);
+        aggregate->addActor(wall4);*/
         wall1->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
         wall2.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
         wall3.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
@@ -190,6 +195,7 @@ namespace {
 //•¨‚Ì‰Šú”z’u‚ðs‚¤
 void InitPhysicsEnviourment();
 void UpdateEnviroment(float dt);
+#pragma region extern
 
 // Proceed the step of physics environment
 void stepPhysics(float dt)
@@ -263,6 +269,16 @@ void cleanupPhysics()
     printf("SnippetHelloWorld done.\n");
 }
 void keyPress(unsigned char key, const PxTransform& camera);
+
+int GetObjectCount() {
+    return _objCount;
+    /*PxActorTypeFlags flags;
+    flags.set(PxActorTypeFlag::Enum::eRIGID_DYNAMIC);
+    flags.set(PxActorTypeFlag::Enum::eRIGID_STATIC);
+    int count = gScene->getNbActors(flags);
+    return count;*/
+}
+#pragma endregion
 
 
 void PMain() {

@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<fstream>
 #include <glut.h>
@@ -7,7 +8,7 @@
 #include "Camera.h"
 #include "RenderActor.h"
 #include "FrameAction.h"
-#include "CSVOutPuter.h"
+#include "CSVOutPutFactory.h"
 
 using namespace std;
 using namespace physx;
@@ -15,6 +16,7 @@ extern void initPhysics(bool init);
 extern void stepPhysics(float dt);
 extern void cleanupPhysics();
 extern void keyPress(unsigned char key, const PxTransform& camera);
+extern int GetObjectCount();
 namespace {
 	Camera* sCamera;
 	bool _isRendering = true;
@@ -25,11 +27,11 @@ namespace {
 		sCamera->handleMotion(x, y);
 	}
 
-	CSVOutPuter _outPuter(10);
+	CSVOutPutFactory _outFactory;
 	void keyboardCallback(unsigned char key, int x, int y)
 	{
 		if (key == 27) {
-			_outPuter.OutPutCSV();
+			_outFactory.OutPutCSV();
 			cout << "output file\n";
 			exit(0);
 		}
@@ -69,8 +71,10 @@ namespace {
 			auto dur = chrono::system_clock::now()-start;
 			auto misec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
 			float sec = misec / 1000000.0f;
-			cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale  << "\n";
-			//_outPuter.TryAddData(sec);
+			_outFactory.Update("simulateTime", sec);
+			_outFactory.Update("objectCount",GetObjectCount());
+			//cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale << "\n";
+			cout << GetObjectCount() << "\n";
 			//cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale << ": isOver:" << (sec > dt / _physicsTimeScale) << "\n";
 			//cout << "pSimulate: " << sec << ",interval: " << dt / _physicsTimeScale << ": intervalOver:" << (0.03f<dt/_physicsTimeScale) << "\n";
 			
@@ -127,6 +131,8 @@ void renderLoop() {
 	RenderActor::setupDefaultWindow("test");
 	RenderActor::setupDefaultRenderState();
 
+	_outFactory.AddDataSet("objectCount", 10);
+	_outFactory.AddDataSet("simulateTime", 10);
 
 	glutIdleFunc(idleCallback);
 	glutDisplayFunc(renderCallback);
